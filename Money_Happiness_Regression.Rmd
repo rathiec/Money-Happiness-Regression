@@ -1,0 +1,53 @@
+---
+title: "Money-Happiness-Regression"
+author: "Akshay Rathi, Devanshi Mittal, Agastya Teja, Linh Truong"
+date: "4/22/2019"
+output: html_document
+---
+
+```{r}
+library(lmtest)
+my_data = read.csv("my_data")
+reg = lm(LifeLadder ~ LogGDPpercapita + Generosity + Freedomtomakelifechoices + Perceptionsofcorruption + Confidenceinnationalgovernment + Socialsupport + as.factor(Year) + as.factor(Cont), data = my_data)
+library(lmtest)
+bptest(reg)
+```
+
+```{r}
+library(ggplot2)
+newdata <- subset(my_data, Year=="2016")
+ggplot(newdata, aes(x= LogGDPpercapita, y = LifeLadder)) + geom_point() + geom_smooth() + labs(title="Money v/s Happiness", x="Log GDP per capita", y = "Happiness")
+```
+
+```{r}
+library(dplyr)
+ggplot(newdata, aes(x= Socialsupport, y = LifeLadder)) + geom_point() + geom_smooth(method = lm, mapping = aes(weight = Cont)) + labs(title="Social Support v/s Happiness", x="Social Support", y = "Happiness")
+
+```
+```{r}
+library(ggplot2)
+newdata <- subset(my_data, Year=="2018")
+d_filtered <- newdata %>%
+  group_by(Cont) %>% 
+  filter(Cont == "United States") %>%
+  ungroup()
+ggplot(newdata, aes(x= LogGDPpercapita, y = LifeLadder)) + geom_point() + geom_smooth(method = "lm") + labs(title="Money v/s Happiness for Year 2018", x="Log GDP per capita", y = "Happiness") + geom_point(aes(x= LogGDPpercapita, y = LifeLadder, colour = Cont, size = 20), data = d_filtered)  +
+  scale_size(guide = 'none') + labs(color = "Country")
+```
+
+```{r}
+ggplot(newdata, aes(x= Socialsupport, y = LifeLadder)) + geom_point() + geom_smooth(method = 'lm') + labs(title="Social Support v/s Happiness for Year 2018", x="Social Support", y = "Happiness") + geom_point(aes(x= Socialsupport, y = LifeLadder, colour = Cont, size = 20), data = d_filtered) +
+  scale_size(guide = 'none') + labs(color = "Country")
+
+```
+
+```{r}
+library(ggplot2)
+ggplot(newdata, aes(x= Freedomtomakelifechoices, y = LifeLadder)) + geom_point() + geom_smooth(method = 'lm') + labs(title="Freedom to Make Life Choices v/s Happiness for Year 2018", x="Social Support", y = "Happiness") + geom_point(aes(x= Freedomtomakelifechoices, y = LifeLadder, colour = Cont, size = 20), data = d_filtered) +
+  scale_size(guide = 'none') + labs(color = "Country")
+
+```
+
+```{r}
+hist(newdata$LifeLadder, main = "Histogram of Happiness Score Worldwide in 2018", xlab = "Happiness Score")
+```
